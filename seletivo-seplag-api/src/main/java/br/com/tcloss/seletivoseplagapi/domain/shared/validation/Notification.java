@@ -2,6 +2,7 @@ package br.com.tcloss.seletivoseplagapi.domain.shared.validation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class Notification {
     private final List<String> errors = new ArrayList<>();
@@ -22,6 +23,23 @@ public class Notification {
         }
     }
 
+    public <T> T tryExecute(Supplier<T> supplier) {
+        try {
+            return supplier.get();
+        } catch (Exception ex) {
+            this.errors.add(ex.getMessage());
+            return null;
+        }
+    }
+
+    public void tryExecute(Runnable runnable) {
+        try {
+            runnable.run();
+        } catch (Exception ex) {
+            this.errors.add(ex.getMessage());
+        }
+    }
+    
     public boolean hasErrors() {
         return !errors.isEmpty();
     }
