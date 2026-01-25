@@ -27,7 +27,7 @@ public class LineupTest {
                 UUID.fromString("019bf665-07fd-7386-bb3e-702b48dbbed6"));
 
         assertThatThrownBy(() -> {
-            Lineup.createNew("Banda X", members.stream().map(m -> new Member(m, false, false)).toList(),
+            Lineup.createNew("Banda X", members.stream().map(m -> new Member(m, true, false)).toList(),
                     LocalDate.of(2000, 1, 1), null);
         }).isInstanceOf(DomainException.class).extracting(e -> ((DomainException) e).getErrors()).asList()
                 .hasSize(2)
