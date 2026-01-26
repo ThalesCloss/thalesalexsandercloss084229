@@ -1,7 +1,9 @@
 package br.com.tcloss.seletivoseplagapi.domain.shared.vo;
 
 import br.com.tcloss.seletivoseplagapi.domain.shared.ValueObject;
+import jakarta.persistence.Embeddable;
 
+@Embeddable
 public record ProperName(
     String name
 ) implements ValueObject{
