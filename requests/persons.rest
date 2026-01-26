@@ -1,0 +1,7 @@
+POST http://localhost:8087/persons
+content-type: application/json
+
+{
+    "name": "Ozzy Osbourne",
+    "birthDate": "1948-12-03"
+}
