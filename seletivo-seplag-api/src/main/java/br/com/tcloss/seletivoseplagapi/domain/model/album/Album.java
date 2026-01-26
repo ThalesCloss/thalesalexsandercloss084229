@@ -29,6 +29,20 @@ public class Album extends AggregateRoot<UUID> {
 
     private List<Track> tracks;
 
+    private List<Image> images;
+
+    public void addImage(Image newImage) {
+        this.images.add(newImage);
+    }
+
+    public void removeImage(String identifier) {
+        boolean removed = this.images.removeIf(image -> image.identifier().equals(identifier));
+
+        if (!removed) {
+            throw new IllegalArgumentException("Imagem não encontrada no álbum.");
+        }
+    }
+
     public void addTrack(Track newTrack) {
         this.tracks.add(newTrack);
     }
@@ -46,7 +60,8 @@ public class Album extends AggregateRoot<UUID> {
             UUID artistProfileId,
             UUID artistProfileLineupId,
             LocalDate releaseDate,
-            List<Track> tracks) {
+            List<Track> tracks,
+            List<Image> images) {
         final var notification = Notification.create();
         final var properTitle = notification.tryExecute(() -> new ProperName(title));
         notification.validate(artistProfileId != null && !artistProfileId.toString().isBlank(),
@@ -61,7 +76,8 @@ public class Album extends AggregateRoot<UUID> {
                 artistProfileId,
                 artistProfileLineupId,
                 releaseDate,
-                List.copyOf(tracks));
+                List.copyOf(tracks),
+                images != null ? List.copyOf(images) : List.of());
     }
 
 }
