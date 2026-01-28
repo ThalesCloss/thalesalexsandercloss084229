@@ -1,4 +1,4 @@
-package br.com.tcloss.seletivoseplagapi.infra.api;
+package br.com.tcloss.seletivoseplagapi.infra.api.v1;
 
 
 import java.util.UUID;
@@ -17,7 +17,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.AllArgsConstructor;
 
-@Path("/compositions")
+@Path("/v1/compositions")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @AllArgsConstructor

@@ -1,4 +1,4 @@
-package br.com.tcloss.seletivoseplagapi.infra.api;
+package br.com.tcloss.seletivoseplagapi.infra.api.v1;
 
 
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreatePersonCommandHandler;
@@ -12,7 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.AllArgsConstructor;
 
-@Path("/persons")
+@Path("/V1/persons")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @AllArgsConstructor

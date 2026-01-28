@@ -1,4 +1,4 @@
-package br.com.tcloss.seletivoseplagapi.infra.api;
+package br.com.tcloss.seletivoseplagapi.infra.api.v1;
 
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateArtistProfileCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateArtistProfileCommand;
@@ -11,7 +11,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.AllArgsConstructor;
 
-@Path("/artist-profile")
+@Path("/v1/artist-profile")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @AllArgsConstructor
