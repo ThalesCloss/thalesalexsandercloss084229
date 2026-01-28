@@ -2,6 +2,7 @@ package br.com.tcloss.seletivoseplagapi.infra.api;
 
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateArtistProfileCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateArtistProfileCommand;
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.ArtistProfileDto;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -18,8 +19,8 @@ public class ArtistProfileController {
     final private CreateArtistProfileCommandHandler createArtistProfileCommandHandler;
 
     @POST
-    public Response create(CreateArtistProfileCommand request) {
-        createArtistProfileCommandHandler.execute(request);
+    public Response create(ArtistProfileDto request) {
+        createArtistProfileCommandHandler.execute(new CreateArtistProfileCommand(request));
         return Response.ok().build();
     }
 }
