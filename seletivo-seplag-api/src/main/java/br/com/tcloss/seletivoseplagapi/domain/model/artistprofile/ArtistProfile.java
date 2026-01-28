@@ -33,24 +33,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "artist_profiles")
-public class ArtistProfile extends AggregateRoot<UUID>{
-    
+public class ArtistProfile extends AggregateRoot<UUID> {
+
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-
-    @AttributeOverride(
-        name = "name",
-        column = @Column(name = "stage_name", nullable = false, length = 200)
-    )
-    @Embedded    
+    @AttributeOverride(name = "name", column = @Column(name = "stage_name", nullable = false, length = 200))
+    @Embedded
     private ProperName stageName;
 
     @Column(name = "biography", columnDefinition = "TEXT")
     private String biography;
 
-    @Enumerated(EnumType.STRING) 
+    @Enumerated(EnumType.STRING)
     @Column(name = "artist_type", nullable = false, length = 20)
     private ArtistType artistType;
 
@@ -59,12 +55,12 @@ public class ArtistProfile extends AggregateRoot<UUID>{
     @Fetch(FetchMode.SUBSELECT)
     private List<Lineup> lineups = new ArrayList<>();
 
-
     public void changeLineup(String label, List<Member> members, LocalDate startedAt) {
         final var notification = Notification.create();
-        final var newLabel = notification.tryExecute(()-> new ProperName(label));
-        final var newLineup = notification.tryExecute(()-> Lineup.createNew(newLabel.toString(), members, startedAt, null));
-        notification.tryExecute(()-> this.artistType.validate(this, newLineup));
+        final var newLabel = notification.tryExecute(() -> new ProperName(label));
+        final var newLineup = notification
+                .tryExecute(() -> Lineup.createNew(newLabel.toString(), members, startedAt, null));
+        notification.tryExecute(() -> this.artistType.validate(this, newLineup));
         notification.throwIfHasErrors();
         this.closeCurrentLineup(startedAt);
         this.lineups.add(newLineup);
@@ -78,8 +74,6 @@ public class ArtistProfile extends AggregateRoot<UUID>{
         }
     }
 
-    
-
     public Lineup getCurrentLineup() {
         return this.lineups.stream()
                 .filter(lineup -> lineup.getDuration().endDate() == null)
@@ -87,13 +81,20 @@ public class ArtistProfile extends AggregateRoot<UUID>{
                 .orElse(null);
     }
 
-    public static ArtistProfile createNew(String stageName, String biography, ArtistType artistType, Lineup initialLineup) {
+    public static ArtistProfile createNew(String stageName, String biography, ArtistType artistType,
+            List<Lineup> lineups) {
         final var notification = Notification.create();
-        final var properStageName = notification.tryExecute(()-> new ProperName(stageName));
-        final var artist = new ArtistProfile(UUID.randomUUID(), properStageName, biography, artistType, new ArrayList<>());
-        notification.tryExecute(()-> artistType.validate(artist, initialLineup));
+        final var properStageName = notification.tryExecute(() -> new ProperName(stageName));
+        final var artist = new ArtistProfile(UUID.randomUUID(), properStageName, biography, artistType,
+                new ArrayList<>());
+        notification.validate(lineups != null && !lineups.isEmpty(), "O perfil deve ter pelo menos uma formação");
+        if (lineups != null) {
+            lineups.forEach(lineup -> {
+                notification.tryExecute(() -> artistType.validate(artist, lineup));
+                artist.lineups.add(lineup);
+            });
+        }
         notification.throwIfHasErrors();
-        artist.lineups.add(initialLineup);
         return artist;
     }
 }

@@ -18,7 +18,7 @@ public class ArtistProfileTest {
         final var lineup = Lineup.createNew("Solo Artist", new ArrayList<Member>(List.of(
                 new Member(UUID.fromString("019bf665-07fd-7386-bb3e-702b48dbbed6"), true, true))),
                 LocalDate.of(2020, 1, 1), null);
-        final var artist = ArtistProfile.createNew("Solo Artist", "A great solo artist", ArtistType.SOLO, lineup);
+        final var artist = ArtistProfile.createNew("Solo Artist", "A great solo artist", ArtistType.SOLO, List.of(lineup));
         assertThat(artist).isNotNull();
         assertThat(artist.getArtistType()).isEqualTo(ArtistType.SOLO);
         assertThat(artist.getLineups()).hasSize(1);
@@ -32,7 +32,7 @@ public class ArtistProfileTest {
                 new Member(UUID.fromString("019bf673-09bc-7ff3-8f37-284a6bef14b3"), false, false))),
                 LocalDate.of(2020, 1, 1), null);
 
-        assertThatThrownBy(() -> ArtistProfile.createNew("Solo Artist", "A great solo artist", ArtistType.SOLO, lineup))
+        assertThatThrownBy(() -> ArtistProfile.createNew("Solo Artist", "A great solo artist", ArtistType.SOLO, List.of(lineup)))
                 .hasMessageContaining("A formação de um artista solo deve conter exatamente um membro.");
 
     }
@@ -44,7 +44,7 @@ public class ArtistProfileTest {
                 new Member(UUID.fromString("019bf665-07fd-7386-bb3e-702b48dbbed6"), true, true),
                 new Member(UUID.fromString("019bf673-09bc-7ff3-8f37-284a6bef14b3"), false, false))),
                 LocalDate.of(2020, 1, 1), null);
-        final var artist = ArtistProfile.createNew("Duo Artist", "A great duo artist", ArtistType.DUO, lineup);
+        final var artist = ArtistProfile.createNew("Duo Artist", "A great duo artist", ArtistType.DUO, List.of(lineup));
         assertThat(artist).isNotNull();
         assertThat(artist.getArtistType()).isEqualTo(ArtistType.DUO);
         assertThat(artist.getLineups()).hasSize(1);
@@ -58,7 +58,7 @@ public class ArtistProfileTest {
                 new Member(UUID.fromString("019bf665-07fd-7386-bb3e-702b48dbbed6"), true, true))),
                 LocalDate.of(2020, 1, 1), null);
 
-        assertThatThrownBy(() -> ArtistProfile.createNew("Duo Artist", "A great duo artist", ArtistType.DUO, lineup))
+        assertThatThrownBy(() -> ArtistProfile.createNew("Duo Artist", "A great duo artist", ArtistType.DUO,List.of(lineup)))
                 .hasMessageContaining("A formação de um artista duo deve conter exatamente dois membros.");
     }
 
@@ -71,7 +71,7 @@ public class ArtistProfileTest {
                 new Member(UUID.fromString("019bf674-0a1c-7f4e-9d2e-385a6bef14c4"), false, false),
                 new Member(UUID.fromString("019bf675-1b2d-8f5f-ad3f-486b7cef25d5"), false, false))),
                 LocalDate.of(2020, 1, 1), null);
-        final var artist = ArtistProfile.createNew("Band", "A great band", ArtistType.BAND, lineup);
+        final var artist = ArtistProfile.createNew("Band", "A great band", ArtistType.BAND, List.of(lineup));
         assertThat(artist).isNotNull();
         assertThat(artist.getArtistType()).isEqualTo(ArtistType.BAND);
         assertThat(artist.getLineups()).hasSize(1);
@@ -84,7 +84,7 @@ public class ArtistProfileTest {
         final var lineup = Lineup.createNew("Solo Artist", new ArrayList<Member>(List.of(
                 new Member(UUID.fromString("019bf665-07fd-7386-bb3e-702b48dbbed6"), true, true))),
                 LocalDate.of(2020, 1, 1), null);
-        final var artist = ArtistProfile.createNew("Solo Artist", "A great solo artist", ArtistType.SOLO, lineup);
+        final var artist = ArtistProfile.createNew("Solo Artist", "A great solo artist", ArtistType.SOLO, List.of(lineup));
 
         assertThatThrownBy(() -> artist.changeLineup("New Solo Artist", new ArrayList<Member>(List.of(
                 new Member(UUID.fromString("019bf665-07fd-7386-bb3e-702b48dbbed6"), true, true))),
@@ -99,7 +99,7 @@ public class ArtistProfileTest {
                 new Member(UUID.fromString("019bf665-07fd-7386-bb3e-702b48dbbed6"), true, true),
                 new Member(UUID.fromString("019bf673-09bc-7ff3-8f37-284a6bef14b3"), false, false))),
                 LocalDate.of(2020, 1, 1), null);
-        final var artist = ArtistProfile.createNew("Dupla", "A great duo", ArtistType.DUO, lineup);
+        final var artist = ArtistProfile.createNew("Dupla", "A great duo", ArtistType.DUO, List.of(lineup));
 
         final var novaFormacao = "Nova formação";
         final var dataInicio = LocalDate.of(2021, 1, 1);
