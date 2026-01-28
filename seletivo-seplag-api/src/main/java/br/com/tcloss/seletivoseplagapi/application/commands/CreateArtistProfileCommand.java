@@ -1,14 +1,8 @@
 package br.com.tcloss.seletivoseplagapi.application.commands;
 
-
-import br.com.tcloss.seletivoseplagapi.domain.model.artistprofile.ArtistType;
-import jakarta.validation.constraints.NotNull;
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.ArtistProfileDto;
 
 public record CreateArtistProfileCommand(
-        @NotNull() String stageName,
-        String biography,
-        ArtistType artistType
-
-) {
+                ArtistProfileDto artistProfile) {
 
 }
