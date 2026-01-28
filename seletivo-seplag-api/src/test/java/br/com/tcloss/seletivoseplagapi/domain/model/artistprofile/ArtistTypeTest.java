@@ -11,6 +11,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+
 import br.com.tcloss.seletivoseplagapi.domain.shared.validation.DomainException;
 
 public class ArtistTypeTest {
@@ -69,7 +71,7 @@ public class ArtistTypeTest {
     private Lineup fakeLineupWithMembers(int memberCount) {
         List<Member> members = new ArrayList();
         for (int i = 0; i < memberCount; i++) {
-            members.add(new Member(UUID.randomUUID(), i == 0, false));
+            members.add(new Member(UuidCreator.getTimeOrderedEpoch(), i == 0, false));
         }
         return Lineup.createNew("Fake Lineup", members, LocalDate.now(), null);
     }

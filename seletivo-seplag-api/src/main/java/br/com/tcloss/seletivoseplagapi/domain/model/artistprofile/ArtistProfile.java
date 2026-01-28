@@ -8,6 +8,8 @@ import java.util.UUID;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+
 import br.com.tcloss.seletivoseplagapi.domain.shared.AggregateRoot;
 import br.com.tcloss.seletivoseplagapi.domain.shared.validation.Notification;
 import br.com.tcloss.seletivoseplagapi.domain.shared.vo.ProperName;
@@ -85,7 +87,7 @@ public class ArtistProfile extends AggregateRoot<UUID> {
             List<Lineup> lineups) {
         final var notification = Notification.create();
         final var properStageName = notification.tryExecute(() -> new ProperName(stageName));
-        final var artist = new ArtistProfile(UUID.randomUUID(), properStageName, biography, artistType,
+        final var artist = new ArtistProfile(UuidCreator.getTimeOrderedEpoch(), properStageName, biography, artistType,
                 new ArrayList<>());
         notification.validate(lineups != null && !lineups.isEmpty(), "O perfil deve ter pelo menos uma formação");
         if (lineups != null) {

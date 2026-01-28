@@ -3,6 +3,8 @@ package br.com.tcloss.seletivoseplagapi.domain.model.person;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+
 import br.com.tcloss.seletivoseplagapi.domain.shared.AggregateRoot;
 import br.com.tcloss.seletivoseplagapi.domain.shared.validation.Notification;
 import br.com.tcloss.seletivoseplagapi.domain.shared.vo.ProperName;
@@ -47,6 +49,6 @@ public class Person extends AggregateRoot<UUID>{
         notification.validate(birthDate != null, "A data de nascimento é obrigatória");
         notification.validate(birthDate != null && !birthDate.isAfter(LocalDate.now()), "A data de nascimento não pode ser futura");
         notification.throwIfHasErrors();
-        return new Person(UUID.randomUUID(), properName, birthDate);
+        return new Person(UuidCreator.getTimeOrderedEpoch(), properName, birthDate);
     }
 }

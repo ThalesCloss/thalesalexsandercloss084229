@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+
 import br.com.tcloss.seletivoseplagapi.domain.shared.AggregateRoot;
 import br.com.tcloss.seletivoseplagapi.domain.shared.validation.Notification;
 import br.com.tcloss.seletivoseplagapi.domain.shared.vo.ProperName;
@@ -64,7 +66,7 @@ public class Composition extends AggregateRoot<UUID> {
         notification.validate(authors != null && !authors.isEmpty(), "Deve haver ao menos um autor para a composição.");
         notification.throwIfHasErrors();
         return new Composition(
-                UUID.randomUUID(),
+                UuidCreator.getTimeOrderedEpoch(),
                 properTitle,
                 iswcValue,
                 new ArrayList<>(authors),

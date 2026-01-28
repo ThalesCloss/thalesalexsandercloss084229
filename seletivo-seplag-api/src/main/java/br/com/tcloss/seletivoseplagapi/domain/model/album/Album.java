@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+
 import br.com.tcloss.seletivoseplagapi.domain.shared.AggregateRoot;
 import br.com.tcloss.seletivoseplagapi.domain.shared.validation.Notification;
 import br.com.tcloss.seletivoseplagapi.domain.shared.vo.ProperName;
@@ -71,7 +73,7 @@ public class Album extends AggregateRoot<UUID> {
         notification.validate(tracks != null && !tracks.isEmpty(), "O album deve conter ao menos uma faixa.");
         notification.throwIfHasErrors();
         return new Album(
-                UUID.randomUUID(),
+                UuidCreator.getTimeOrderedEpoch(),
                 properTitle,
                 artistProfileId,
                 artistProfileLineupId,

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+
 import br.com.tcloss.seletivoseplagapi.domain.shared.BaseEntity;
 import br.com.tcloss.seletivoseplagapi.domain.shared.validation.Notification;
 import br.com.tcloss.seletivoseplagapi.domain.shared.vo.Period;
@@ -72,6 +74,7 @@ public class Lineup extends BaseEntity<UUID> {
         final ProperName properName = notification.tryExecute(() -> new ProperName(label));
         final Period period = notification.tryExecute(() -> new Period(startDate, endDate));
         final Lineup lineup = new Lineup();
+        lineup.id = UuidCreator.getTimeOrderedEpoch();
         lineup.label = properName;
         lineup.duration = period;
         members.forEach((member) -> notification.tryExecute(() -> lineup.addMember(member)));

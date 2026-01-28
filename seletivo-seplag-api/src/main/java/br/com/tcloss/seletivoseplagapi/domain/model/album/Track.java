@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+
 import br.com.tcloss.seletivoseplagapi.domain.shared.BaseEntity;
 import br.com.tcloss.seletivoseplagapi.domain.shared.validation.DomainException;
 import br.com.tcloss.seletivoseplagapi.domain.shared.validation.Notification;
@@ -63,7 +65,7 @@ public class Track extends BaseEntity<UUID> {
         final var notification = Notification.create();
         final var properTitle = notification.tryExecute(() -> new ProperName(title));
         final var isrcValue = notification.tryExecute(() -> isrc != null ? new ISRC(isrc) : null);
-        final var track = new Track(UUID.randomUUID(), properTitle, compositionId, trackNumber, discNumber,
+        final var track = new Track(UuidCreator.getTimeOrderedEpoch(), properTitle, compositionId, trackNumber, discNumber,
                 contexDuration, isrcValue, new ArrayList<>());
         if (guests != null) {
             guests.forEach((guest) -> {
