@@ -3,7 +3,9 @@ package br.com.tcloss.seletivoseplagapi.domain.shared.vo;
 import java.time.LocalDate;
 
 import br.com.tcloss.seletivoseplagapi.domain.shared.ValueObject;
+import jakarta.persistence.Embeddable;
 
+@Embeddable
 public record Period(
         LocalDate startDate,
         LocalDate endDate) implements ValueObject {
