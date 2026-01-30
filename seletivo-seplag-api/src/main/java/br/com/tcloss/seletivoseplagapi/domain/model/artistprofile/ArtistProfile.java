@@ -53,7 +53,7 @@ public class ArtistProfile extends AggregateRoot<UUID> {
     private ArtistType artistType;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "artist_profile_id", nullable = false)
+    @JoinColumn(name = "artist_profile_id", nullable = false, updatable = false)
     @Fetch(FetchMode.SUBSELECT)
     private List<Lineup> lineups = new ArrayList<>();
 
