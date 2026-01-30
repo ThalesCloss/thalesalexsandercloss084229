@@ -21,11 +21,11 @@ public record TrackDto(
                 @NotNull @Schema(description = "Número da faixa no disco no álbum", examples = { "1", "2",
                                 "3" }) Integer trackNumber,
 
-                @NotBlank @Schema(description = "Tempo de duração da faixa no álbum") Duration contexDuration,
+                @NotNull @Schema(description = "Tempo de duração da faixa no álbum") Duration contexDuration,
 
                 @Schema(description = "ISRC (International Standard Recording Code) da gravação") String isrc,
 
-                @Schema(description = "Convidados da faixa", defaultValue = "[]") @Valid List<GuestDto> guests
+                @Schema(description = "Convidados da faixa", defaultValue = "[]") List<@Valid GuestDto> guests
 
         ) {
 

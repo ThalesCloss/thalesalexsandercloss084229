@@ -12,16 +12,15 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public record AlbumDto(
-        @NotBlank @Schema(description = "Nome do album") String title,
+                @NotBlank @Schema(description = "Nome do album") String title,
 
-        @NotNull @Schema(description = "Id do perfil artistico responsável pelo album") UUID artistProfileId,
+                @NotNull @Schema(description = "Id do perfil artistico responsável pelo album") UUID artistProfileId,
 
-        @NotNull @Schema(description = "Id da formação do perfil artistico responsável pelo album") UUID artistProfileLineupId,
+                @NotNull @Schema(description = "Id da formação do perfil artistico responsável pelo album") UUID artistProfileLineupId,
 
-        @NotNull @Schema(description = "Data de lançamento do album") LocalDate releaseDate,
+                @NotNull @Schema(description = "Data de lançamento do album") LocalDate releaseDate,
 
-        @Valid @Schema(description = "Faixas do álbum") @NotEmpty List<TrackDto>
-        tracks
+                @Schema(description = "Faixas do álbum") @NotEmpty List<@Valid TrackDto> tracks
 
 ) {
 

@@ -11,21 +11,15 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public record LineupDto(
-    @NotBlank(message = "O nome da formação deve ser informado")
-    @Schema(description = "Rótulo que identifica a formação", examples = {"Formação original", "Segunda formação"})
-    String label,
+        @NotBlank(message = "O nome da formação deve ser informado") @Schema(description = "Rótulo que identifica a formação", examples = {
+                "Formação original", "Segunda formação" }) String label,
 
-    @NotNull(message = "A data de inicio da formação é obrigatória")
-    @Schema(description = "Data em que a formação foi estabelecida")
-    LocalDate startDate,
+        @NotNull(message = "A data de inicio da formação é obrigatória") @Schema(description = "Data em que a formação foi estabelecida") LocalDate startDate,
 
-    @Schema(description = "Para formações já encerradas, a data em que ocorreu o encerramento", required = false)
-    LocalDate endDate,
+        @Schema(description = "Para formações já encerradas, a data em que ocorreu o encerramento", required = false) LocalDate endDate,
 
-    @NotEmpty(message = "Informe os membros da formação")
-    @Valid
-    @Schema(description = "Membros presentes na formação")
-    List<MemberDto> members
-) {
+        @NotEmpty(message = "Informe os membros da formação")
+
+        @Schema(description = "Membros presentes na formação") List<@Valid MemberDto> members) {
 
 }
