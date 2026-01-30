@@ -18,3 +18,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      # Porta da Interface Visual (UI) - Acesse em http://localhost:16686
+      - "16686:16686"
+      # Porta para receber dados via OTLP gRPC (Padrão do Quarkus)
+      - "4317:4317"
+      # Porta para receber dados via OTLP HTTP (Opcional, mas bom ter)
+      - "4318:4318"
+      # Porta para métricas do próprio Jaeger (Opcional)
+      - "14269:14269"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
