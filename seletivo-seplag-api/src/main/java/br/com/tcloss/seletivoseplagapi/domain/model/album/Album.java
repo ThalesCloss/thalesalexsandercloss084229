@@ -95,8 +95,7 @@ public class Album extends AggregateRoot<UUID> {
             UUID artistProfileId,
             UUID artistProfileLineupId,
             LocalDate releaseDate,
-            List<Track> tracks,
-            List<Image> images) {
+            List<Track> tracks) {
         final var notification = Notification.create();
         final var properTitle = notification.tryExecute(() -> new ProperName(title));
         notification.validate(artistProfileId != null && !artistProfileId.toString().isBlank(),
@@ -112,7 +111,7 @@ public class Album extends AggregateRoot<UUID> {
                 artistProfileLineupId,
                 releaseDate,
                 List.copyOf(tracks),
-                images != null ? List.copyOf(images) : List.of());
+                List.of());
     }
 
 }

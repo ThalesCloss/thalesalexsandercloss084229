@@ -22,7 +22,7 @@ public class AlbumTest {
                 UUID.fromString("019bf7d3-1acb-71a4-96ab-978fd3045efb"),
                 UUID.fromString("019bf7eb-b2f8-76a2-88ae-7372731b00d0"),
                 LocalDate.of(2000, 10, 01),
-                List.of(track), List.of());
+                List.of(track));
         assertThat(album).isNotNull();
     }
 
@@ -35,7 +35,7 @@ public class AlbumTest {
                     null,
                     null,
                     LocalDate.of(2000, 10, 01),
-                    List.of(), List.of());
+                    List.of());
         }).hasMessageContaining("O album deve conter ao menos uma faixa.");
 
     }
@@ -50,7 +50,7 @@ public class AlbumTest {
                     null,
                     null,
                     LocalDate.of(2000, 10, 01),
-                    List.of(track), List.of());
+                    List.of(track));
         }).hasMessageContaining("O ID do perfil do artista é obrigatório.")
                 .hasMessageContaining("O ID da formação do perfil do artista é obrigatório.");
     }
