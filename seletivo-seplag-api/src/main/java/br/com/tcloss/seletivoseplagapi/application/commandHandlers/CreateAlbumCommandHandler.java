@@ -1,6 +1,10 @@
 package br.com.tcloss.seletivoseplagapi.application.commandHandlers;
 
+import java.util.List;
+
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateAlbumCommand;
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.GuestDto;
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.TrackDto;
 import br.com.tcloss.seletivoseplagapi.application.events.integration.AlbumCreatedIntegrationEvent;
 import br.com.tcloss.seletivoseplagapi.domain.model.album.Album;
 import br.com.tcloss.seletivoseplagapi.domain.model.album.AlbumRepository;
@@ -19,27 +23,42 @@ public class CreateAlbumCommandHandler {
 
         @Transactional
         public void execute(CreateAlbumCommand command) {
+
                 final var album = Album.createNew(
                                 command.album().title(),
                                 command.album().artistProfileId(),
                                 command.album().artistProfileLineupId(),
                                 command.album().releaseDate(),
-                                command.album().tracks().stream().map(track -> Track.createNew(
-                                                track.title(),
-                                                track.compositionId(),
-                                                track.trackNumber(),
-                                                track.discNumber(),
-                                                track.contexDuration(),
-                                                track.isrc(),
-                                                track.guests().stream()
-                                                                .map(guest -> new Guest(guest.id(), guest.creditName(),
-                                                                                guest.displayOrder()))
-                                                                .toList()))
-                                                .toList(),
-                                null);
+                                this.mapTracks(command.album().tracks()));
+
                 albumRepository.save(album);
+
                 integrationEventPublisher
                                 .fire(AlbumCreatedIntegrationEvent.create(album.getId(), album.getTitle().toString()));
+        }
+
+        private List<Track> mapTracks(List<TrackDto> tracks) {
+                return tracks.stream().map(this::createTrack).toList();
+        }
+
+        private Track createTrack(TrackDto track) {
+                return Track.createNew(
+                                track.title(),
+                                track.compositionId(),
+                                track.trackNumber(),
+                                track.discNumber(),
+                                track.contexDuration(),
+                                track.isrc(),
+                                this.mapGuests(track.guests()));
+        }
+
+        private List<Guest> mapGuests(List<GuestDto> guests) {
+                if (guests == null) {
+                        return List.of();
+                }
+                return guests.stream()
+                                .map(guest -> new Guest(guest.id(), guest.creditName(), guest.displayOrder()))
+                                .toList();
         }
 
 }
