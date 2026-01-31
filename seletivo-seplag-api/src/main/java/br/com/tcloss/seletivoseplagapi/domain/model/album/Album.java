@@ -56,7 +56,7 @@ public class Album extends AggregateRoot<UUID> {
     private LocalDate releaseDate;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "album_id", nullable = false)
+    @JoinColumn(name = "album_id", nullable = false, updatable = false)
     @OrderBy("disk_number, track_number")
     @Fetch(FetchMode.SUBSELECT)
     private List<Track> tracks;
