@@ -8,7 +8,6 @@ import br.com.tcloss.seletivoseplagapi.application.commands.CreateCompositionCom
 import br.com.tcloss.seletivoseplagapi.domain.model.composition.CompositionRepository;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
