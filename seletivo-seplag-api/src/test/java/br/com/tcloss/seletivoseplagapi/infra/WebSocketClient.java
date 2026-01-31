@@ -35,7 +35,8 @@ public class WebSocketClient implements AutoCloseable {
     };
 
     public void connectWebSocket(URI websocketUri) {
-        URI wsUri = UriBuilder.fromUri(websocketUri).scheme(websocketUri.getScheme().equals("https")? "wss":"ws").build();
+        URI wsUri = UriBuilder.fromUri(websocketUri).scheme(websocketUri.getScheme().equals("https") ? "wss" : "ws")
+                .build();
         this.webSocket = HttpClient.newHttpClient().newWebSocketBuilder().buildAsync(wsUri, listener).join();
     }
 
@@ -48,7 +49,7 @@ public class WebSocketClient implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (this.webSocket != null) {
             this.webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "End of Test");
         }
