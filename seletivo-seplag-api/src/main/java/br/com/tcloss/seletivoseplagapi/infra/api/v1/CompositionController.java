@@ -6,6 +6,7 @@ import java.util.UUID;
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateCompositionCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateCompositionCommand;
 import br.com.tcloss.seletivoseplagapi.domain.model.composition.CompositionRepository;
+import br.com.tcloss.seletivoseplagapi.infra.api.annotation.RateLimit;
 import io.quarkus.security.Authenticated;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -22,6 +23,7 @@ import lombok.AllArgsConstructor;
 @Consumes(MediaType.APPLICATION_JSON)
 @AllArgsConstructor
 @Authenticated
+@RateLimit
 public class CompositionController {
     private final CreateCompositionCommandHandler createCompositionCommandHandler;
     private final CompositionRepository compositionRepository;

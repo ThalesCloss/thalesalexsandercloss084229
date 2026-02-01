@@ -3,6 +3,7 @@ package br.com.tcloss.seletivoseplagapi.infra.api.v1;
 
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreatePersonCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commands.CreatePersonCommand;
+import br.com.tcloss.seletivoseplagapi.infra.api.annotation.RateLimit;
 import io.quarkus.security.Authenticated;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -18,6 +19,7 @@ import lombok.AllArgsConstructor;
 @Consumes(MediaType.APPLICATION_JSON)
 @AllArgsConstructor
 @Authenticated
+@RateLimit
 public class PersonController {
     private final CreatePersonCommandHandler createPersonCommandHandler;
 
