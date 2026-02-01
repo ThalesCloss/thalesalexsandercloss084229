@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.AlbumDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.TrackDto;
-import br.com.tcloss.seletivoseplagapi.domain.model.album.Track;
 import br.com.tcloss.seletivoseplagapi.domain.model.artistprofile.ArtistProfile;
 import br.com.tcloss.seletivoseplagapi.domain.model.composition.Composition;
 import br.com.tcloss.seletivoseplagapi.domain.model.person.Person;
@@ -29,6 +28,8 @@ import br.com.tcloss.seletivoseplagapi.infra.WebSocketClient;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
+import io.smallrye.jwt.build.Jwt;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import static io.restassured.RestAssured.given;
@@ -65,6 +66,7 @@ public class AlbumCreationE2ETest {
 
     @Test
     @DisplayName("Deve criar um album e enviar a notificação via websocket")
+    @TestSecurity(user = "teste")
     void shouldCreateAlbumAndSendWebSocketNotification() throws JsonProcessingException {
 
         webSocketClient.connectWebSocket(websocketUri);
@@ -82,7 +84,8 @@ public class AlbumCreationE2ETest {
                 List.of(trackDto));
         final String albumRequest = objectMapper.writeValueAsString(albumDto);
 
-        given().contentType(MediaType.APPLICATION_JSON).body(albumRequest).when()
+        given()
+        .contentType(MediaType.APPLICATION_JSON).body(albumRequest).when()
                 .post("/v1/albums").then().statusCode(200);
 
         await()
