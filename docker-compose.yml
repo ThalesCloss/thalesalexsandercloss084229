@@ -12,12 +12,42 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      - ./.docker/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
       - ./.docker/postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d seletivoseplag"]
       interval: 10s
       timeout: 5s
       retries: 5
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    container_name: seplag_keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://database:5432/keycloak
+      KC_DB_USERNAME: user
+      KC_DB_PASSWORD: password
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_FEATURES: opentelemetry
+      KC_TRACING_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_TELEMETRY_ENDPOINT: http://jaeger:4317
+      KC_TRACING_ENDPOINT: http://jaeger:4317
+      KC_TELEMETRY_SERVICE_NAME: "keycloak-auth-server"
+      OTEL_SERVICE_NAME: "keycloak-auth-server"
+      OTEL_TRACES_SAMPLER: "always_on"
+      KC_TRACES_SAMPLER: "always_on"
+    ports:
+      - "9090:8080"
+    volumes:
+      - ./.docker/keycloak:/opt/keycloak/data/import      
+    depends_on:
+      jaeger:
+        condition: service_started
+      database:
+        condition: service_healthy      
 
   jaeger:
     image: jaegertracing/all-in-one:latest
