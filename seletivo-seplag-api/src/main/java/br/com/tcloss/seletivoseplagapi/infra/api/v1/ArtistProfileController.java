@@ -3,6 +3,7 @@ package br.com.tcloss.seletivoseplagapi.infra.api.v1;
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateArtistProfileCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateArtistProfileCommand;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.ArtistProfileDto;
+import io.quarkus.security.Authenticated;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -15,6 +16,7 @@ import lombok.AllArgsConstructor;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @AllArgsConstructor
+@Authenticated
 public class ArtistProfileController {
     final private CreateArtistProfileCommandHandler createArtistProfileCommandHandler;
 

@@ -6,6 +6,7 @@ import java.util.UUID;
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateCompositionCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateCompositionCommand;
 import br.com.tcloss.seletivoseplagapi.domain.model.composition.CompositionRepository;
+import io.quarkus.security.Authenticated;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -20,6 +21,7 @@ import lombok.AllArgsConstructor;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @AllArgsConstructor
+@Authenticated
 public class CompositionController {
     private final CreateCompositionCommandHandler createCompositionCommandHandler;
     private final CompositionRepository compositionRepository;

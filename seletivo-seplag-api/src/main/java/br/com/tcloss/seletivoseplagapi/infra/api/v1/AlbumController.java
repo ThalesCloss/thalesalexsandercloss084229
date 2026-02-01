@@ -3,6 +3,8 @@ package br.com.tcloss.seletivoseplagapi.infra.api.v1;
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateAlbumCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateAlbumCommand;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.AlbumDto;
+import io.quarkus.security.Authenticated;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -16,8 +18,8 @@ import lombok.AllArgsConstructor;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllArgsConstructor
+@Authenticated
 public class AlbumController {
-
     private final CreateAlbumCommandHandler createAlbumCommandHandler;
 
     @POST
