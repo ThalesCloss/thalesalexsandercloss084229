@@ -1,5 +1,6 @@
 package br.com.tcloss.seletivoseplagapi.infra.persistence.repository.panache;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import br.com.tcloss.seletivoseplagapi.domain.model.album.Album;
@@ -13,6 +14,11 @@ public class AlbumRepositoryPanache implements AlbumRepository, PanacheRepositor
     @Override
     public void save(Album album) {
         persist(album);
+    }
+
+    @Override
+    public Optional<Album> getById(UUID albumId) {
+        return findByIdOptional(albumId);
     }
 
 }
