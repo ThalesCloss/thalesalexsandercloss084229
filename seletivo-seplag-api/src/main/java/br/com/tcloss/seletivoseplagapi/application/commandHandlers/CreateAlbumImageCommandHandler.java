@@ -20,17 +20,20 @@ public class CreateAlbumImageCommandHandler {
     private final FileManager fileManager;
 
     public void execute(CreateAlbumImageCommand command) {
-        final var filename = fileManager.upload(command.image().file().uploadedFile(),
-                command.image().file().fileName(), command.image().file().contentType());
+        final var filename = fileManager.upload(
+                command.image().file().uploadedFile(),
+                command.image().file().fileName(),
+                command.image().file().contentType());
         try {
             addAlbumImage(command.albumId(), filename, command.image().type());
         } catch (Exception e) {
+            fileManager.delete(filename);
             throw e;
         }
     }
 
     @Transactional
-    public void addAlbumImage(UUID albumId, String image, ImageType imageType) {
+    protected void addAlbumImage(UUID albumId, String image, ImageType imageType) {
         final var albumResponse = albumRepository.getById(albumId);
         if (albumResponse.isEmpty()) {
             throw new DomainException("O álbum não existe");
