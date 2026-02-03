@@ -1,17 +1,20 @@
 package br.com.tcloss.seletivoseplagapi.infra.adapters;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
+import java.time.Duration;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
 import br.com.tcloss.seletivoseplagapi.application.ports.FileManager;
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.RemoveObjectArgs;
 import io.minio.UploadObjectArgs;
-import io.minio.messages.DeleteObject;
+import io.minio.http.Method;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -54,6 +57,23 @@ public class MinioFileManager implements FileManager {
         } catch (Exception e) {
             Log.errorf(e, "Erro ao excluir o arquivo %s", fileName);
             throw new InternalError();
+        }
+    }
+
+    @Override
+    public URI generatePresignedUrl(String fileName, Duration timer) {
+        try {
+            final var url = minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
+                            .bucket(bucket)
+                            .object(fileName)
+                            .expiry((int) timer.getSeconds())
+                            .build());
+            return URI.create(url);
+        } catch (Exception e) {
+            Log.errorf(e, "Erro ao assinar a url do arquivo %s", fileName);
+            return null;
         }
     }
 
