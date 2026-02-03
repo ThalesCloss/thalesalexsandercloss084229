@@ -2,12 +2,15 @@ package br.com.tcloss.seletivoseplagapi.infra.adapters.queryservices;
 
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record2;
+import org.jooq.SortField;
 import org.jooq.Table;
 import org.jooq.impl.DSL;
 
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.OrderInputDto;
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.PaginationInputDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.AlbumSearchDto;
-import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.PaginationInputDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.output.MultipleItemsResult;
 import br.com.tcloss.seletivoseplagapi.application.dtos.output.Pagination;
 import br.com.tcloss.seletivoseplagapi.application.ports.AlbumQueryService;
@@ -20,7 +23,10 @@ import static br.com.tcloss.seletivoseplagapi.jooq.Tables.ALBUM_TRACK_GUESTS;
 import static br.com.tcloss.seletivoseplagapi.jooq.Tables.ARTIST_PROFILES;
 import static br.com.tcloss.seletivoseplagapi.jooq.Tables.LINEUP_MEMBERS;
 import static br.com.tcloss.seletivoseplagapi.jooq.Tables.PERSONS;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 @AllArgsConstructor
@@ -29,17 +35,15 @@ public class JooqAlbumQueryService implements AlbumQueryService {
 
     @Override
     public MultipleItemsResult<AlbumSummaryDataProjection> searchAlbums(AlbumSearchDto filter,
-            PaginationInputDto pagination) {
+            PaginationInputDto pagination, OrderInputDto orderInputDto) {
         final Condition where = applyFilter(filter);
         final long countTotal = countTotal(where);
-        final int offset = (pagination.page() - 1) * pagination.page();
-        if (offset > countTotal) {
-            return null;
-        }
-        final var result = search(where, pagination.limit(), offset);
-        final int pages = (int) Math.ceilDiv(countTotal, pagination.limit());
+        final int pages = pagination.calculateTotalPages(countTotal);
+        final int currentPage = pagination.getCurrentPageSafely(pages);
+        final int offset = (currentPage - 1) * pagination.limit();
+        final var result = search(where, pagination.limit(), offset, orderInputDto);
         return new MultipleItemsResult<>(
-                result, new Pagination(pages, pagination.page(), pagination.limit(), countTotal));
+                result, new Pagination(pages, currentPage, pagination.limit(), countTotal));
     }
 
     private long countTotal(Condition where) {
@@ -49,7 +53,9 @@ public class JooqAlbumQueryService implements AlbumQueryService {
                 .where(where).fetchSingleInto(Long.class);
     }
 
-    private List<AlbumSummaryDataProjection> search(Condition where, int limit, int offset) {
+    private List<AlbumSummaryDataProjection> search(Condition where, int limit, int offset,
+            OrderInputDto orderInputDto) {
+
         var imgTable = queryLateralSingleImage();
         return dsl.select(
                 ALBUMS.ID.as("albumId"),
@@ -72,9 +78,30 @@ public class JooqAlbumQueryService implements AlbumQueryService {
                         .eq(ARTIST_PROFILES.ID))
                 .leftJoin(imgTable).on(DSL.trueCondition())
                 .where(where)
+                .orderBy(orderBy(orderInputDto))
                 .limit(limit)
                 .offset(offset)
                 .fetchInto(AlbumSummaryDataProjection.class);
+    }
+
+    private List<SortField<?>> orderBy(OrderInputDto orderInputDto) {
+        Map<String, Field<?>> orderAllowed = Map.of(
+                "releaseDate", ALBUMS.START_DATE,
+                "artist", ARTIST_PROFILES.STAGE_NAME,
+                "title", ALBUMS.TITLE);
+        List<SortField<?>> orderBy = new ArrayList<>();
+        var orders = orderInputDto.getOreders();
+        orderAllowed.forEach((fieldName, field) -> {
+            if (orders.containsKey(fieldName)) {
+                orderBy.add(
+                        orders.get(fieldName).equals(OrderInputDto.OrderDirection.ASC) ? field.asc().nullsLast()
+                                : field.desc().nullsLast());
+            }
+        });
+        if (orderBy.isEmpty()) {
+            orderBy.add(orderAllowed.get("releaseDate").desc());
+        }
+        return orderBy;
     }
 
     private Table<Record2<String, String>> queryLateralSingleImage() {
