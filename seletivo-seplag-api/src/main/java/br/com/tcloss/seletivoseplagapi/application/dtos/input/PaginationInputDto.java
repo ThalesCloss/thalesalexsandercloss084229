@@ -1,4 +1,4 @@
-package br.com.tcloss.seletivoseplagapi.application.dtos.input.album;
+package br.com.tcloss.seletivoseplagapi.application.dtos.input;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -12,5 +12,13 @@ public record PaginationInputDto(
     @Schema(description = "Limite de itens por página", defaultValue = "10")
     int limit
 ) {
+
+    public int calculateTotalPages(long totalItems){
+        return (int) Math.ceilDiv(totalItems, limit);
+    }
+
+    public int getCurrentPageSafely(int totalPages){
+        return Math.min(totalPages, page);
+    }
 
 }
