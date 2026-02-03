@@ -1,14 +1,29 @@
 package br.com.tcloss.seletivoseplagapi.infra.api.v1;
 
+import java.util.UUID;
+
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateAlbumCommandHandler;
+import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateAlbumImageCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateAlbumCommand;
+import br.com.tcloss.seletivoseplagapi.application.commands.CreateAlbumImageCommand;
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.OrderInputDto;
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.PaginationInputDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.AlbumDto;
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.AlbumSearchDto;
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.ImageDto;
+import br.com.tcloss.seletivoseplagapi.application.dtos.output.AlbumResponse;
+import br.com.tcloss.seletivoseplagapi.application.dtos.output.MultipleItemsResult;
+import br.com.tcloss.seletivoseplagapi.application.queries.SearchAlbumsQuery;
+import br.com.tcloss.seletivoseplagapi.application.queryHandlers.SearchAlbumsQueryHandler;
 import br.com.tcloss.seletivoseplagapi.infra.api.annotation.RateLimit;
 import io.quarkus.security.Authenticated;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -22,11 +37,27 @@ import lombok.AllArgsConstructor;
 @RateLimit
 public class AlbumController {
     private final CreateAlbumCommandHandler createAlbumCommandHandler;
+    private final CreateAlbumImageCommandHandler createAlbumImageCommandHandler;
+    private final SearchAlbumsQueryHandler searchAlbumsQueryHandler;
 
     @POST
     public Response criar(@Valid AlbumDto album) {
         createAlbumCommandHandler.execute(new CreateAlbumCommand(album));
         return Response.ok().build();
 
+    }
+
+    @POST
+    @Path("/{albumId}/images")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadImage(@PathParam("albumId") UUID albumId, @Valid ImageDto image) {
+        createAlbumImageCommandHandler.execute(new CreateAlbumImageCommand(albumId, image));
+        return Response.ok().build();
+    }
+
+    @GET
+    public MultipleItemsResult<AlbumResponse> search(@BeanParam AlbumSearchDto albumSearchDto,
+            @BeanParam PaginationInputDto pagination, @BeanParam OrderInputDto orderInputDto) {
+        return searchAlbumsQueryHandler.query(new SearchAlbumsQuery(albumSearchDto, pagination, orderInputDto));
     }
 }
