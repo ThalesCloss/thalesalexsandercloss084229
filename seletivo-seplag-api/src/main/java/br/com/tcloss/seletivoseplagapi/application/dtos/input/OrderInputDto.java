@@ -4,25 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
-import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import jakarta.ws.rs.QueryParam;
 
 public record OrderInputDto(
-@Parameter(
-        description = "Ordenação múltipla",
-        example = "field,desc",
-        schema =  @Schema(
-                type = SchemaType.ARRAY,
-                implementation = String.class,
-                description = "Formato: propriedade,direção",
-                examples = {"fieldName,desc", "fieldName,asc"},
-                defaultValue = "field,desc"
-            )
-        
-    )    
-    @QueryParam("orderBy") List<String> orderBy) {
+        @Parameter(description = "Ordenação múltipla. Formato: propriedade,direção"
+
+        ) @QueryParam("orderBy") List<String> orderBy) {
 
     public enum OrderDirection {
         ASC,
