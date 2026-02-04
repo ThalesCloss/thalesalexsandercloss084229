@@ -83,6 +83,15 @@ public class ArtistProfile extends AggregateRoot<UUID> {
                 .orElse(null);
     }
 
+    public void update(String stageName, String biography) {
+        final var notification = Notification.create();
+        final var name = notification.tryExecute(() -> new ProperName(stageName));
+        notification.throwIfHasErrors();
+        this.stageName = name;
+        this.biography = biography;
+
+    }
+
     public static ArtistProfile createNew(String stageName, String biography, ArtistType artistType,
             List<Lineup> lineups) {
         final var notification = Notification.create();

@@ -4,13 +4,16 @@ import java.util.UUID;
 
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.ChangeLineupCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateArtistProfileCommandHandler;
+import br.com.tcloss.seletivoseplagapi.application.commandHandlers.UpdateArtistProfileCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commands.ChangeLineupCommand;
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateArtistProfileCommand;
+import br.com.tcloss.seletivoseplagapi.application.commands.UpdateArtistProfileCommand;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.OrderInputDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.PaginationInputDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.ArtistProfileDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.ArtistProfileSearchDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.LineupDto;
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.UpdateArtistProfileDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.output.ArtistProfileResponse;
 import br.com.tcloss.seletivoseplagapi.application.dtos.output.MultipleItemsResult;
 import br.com.tcloss.seletivoseplagapi.application.queries.ArtistProfileQuery;
@@ -23,6 +26,7 @@ import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -41,6 +45,7 @@ public class ArtistProfileController {
     final private SearchArtistProfilesQueryHandler searchArtistProfilesQueryHandler;
     final private ArtistProfileQueryHandler artistProfileQueryHandler;
     final private ChangeLineupCommandHandler changeLineupCommandHandler;
+    final private UpdateArtistProfileCommandHandler updateArtistProfileCommandHandler;
 
     @POST
     public Response create(ArtistProfileDto request) {
@@ -63,6 +68,13 @@ public class ArtistProfileController {
     @Path("/{id}/lineups")
     public Response changeLineup(@PathParam("id") UUID id, LineupDto lineupDto) {
         changeLineupCommandHandler.execute(new ChangeLineupCommand(id, lineupDto));
+        return Response.accepted().build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    public Response update(@PathParam("id") UUID id, UpdateArtistProfileDto updateArtistProfileDto) {
+        updateArtistProfileCommandHandler.execute(new UpdateArtistProfileCommand(id, updateArtistProfileDto));
         return Response.accepted().build();
     }
 
