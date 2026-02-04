@@ -1,5 +1,6 @@
 package br.com.tcloss.seletivoseplagapi.infra.persistence.repository.panache;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import br.com.tcloss.seletivoseplagapi.domain.model.artistprofile.ArtistProfile;
@@ -14,6 +15,11 @@ public class ArtistProfileRepositoryPanache implements ArtistProfileRepository, 
     @Override
     public void save(ArtistProfile artistProfile) {
         persist(artistProfile);
+    }
+
+    @Override
+    public Optional<ArtistProfile> getById(UUID uuid) {
+        return findByIdOptional(uuid);
     }
 
 }
