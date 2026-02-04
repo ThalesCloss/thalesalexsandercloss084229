@@ -24,13 +24,12 @@ import static br.com.tcloss.seletivoseplagapi.jooq.Tables.ARTIST_PROFILES;
 import static br.com.tcloss.seletivoseplagapi.jooq.Tables.LINEUP_MEMBERS;
 import static br.com.tcloss.seletivoseplagapi.jooq.Tables.PERSONS;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
 @AllArgsConstructor
-public class JooqAlbumQueryService implements AlbumQueryService {
+public class JooqAlbumQueryService extends JooqQueryServiceBase implements AlbumQueryService {
     private final DSLContext dsl;
 
     @Override
@@ -44,13 +43,6 @@ public class JooqAlbumQueryService implements AlbumQueryService {
         final var result = search(where, pagination.limit(), offset, orderInputDto);
         return new MultipleItemsResult<>(
                 result, new Pagination(pages, currentPage, pagination.limit(), countTotal));
-    }
-
-    private long countTotal(Condition where) {
-        return dsl.selectCount()
-                .from(ALBUMS)
-                .join(ARTIST_PROFILES).on(ALBUMS.ARTIST_PROFILE_ID.eq(ARTIST_PROFILES.ID))
-                .where(where).fetchSingleInto(Long.class);
     }
 
     private List<AlbumSummaryDataProjection> search(Condition where, int limit, int offset,
@@ -82,26 +74,6 @@ public class JooqAlbumQueryService implements AlbumQueryService {
                 .limit(limit)
                 .offset(offset)
                 .fetchInto(AlbumSummaryDataProjection.class);
-    }
-
-    private List<SortField<?>> orderBy(OrderInputDto orderInputDto) {
-        Map<String, Field<?>> orderAllowed = Map.of(
-                "releaseDate", ALBUMS.START_DATE,
-                "artist", ARTIST_PROFILES.STAGE_NAME,
-                "title", ALBUMS.TITLE);
-        List<SortField<?>> orderBy = new ArrayList<>();
-        var orders = orderInputDto.getOreders();
-        orderAllowed.forEach((fieldName, field) -> {
-            if (orders.containsKey(fieldName)) {
-                orderBy.add(
-                        orders.get(fieldName).equals(OrderInputDto.OrderDirection.ASC) ? field.asc().nullsLast()
-                                : field.desc().nullsLast());
-            }
-        });
-        if (orderBy.isEmpty()) {
-            orderBy.add(orderAllowed.get("releaseDate").desc());
-        }
-        return orderBy;
     }
 
     private Table<Record2<String, String>> queryLateralSingleImage() {
@@ -155,6 +127,27 @@ public class JooqAlbumQueryService implements AlbumQueryService {
             where = where.and(artistWhere);
         }
         return where;
+    }
+
+    @Override
+    protected Map<String, Field<?>> mapOrdersAllowed() {
+        return Map.of(
+                "releaseDate", ALBUMS.START_DATE,
+                "artist", ARTIST_PROFILES.STAGE_NAME,
+                "title", ALBUMS.TITLE);
+    }
+
+    @Override
+    protected SortField<?> defaultOrder() {
+        return ALBUMS.START_DATE.desc();
+    }
+
+    @Override
+    protected long countTotal(Condition where) {
+        return dsl.selectCount()
+                .from(ALBUMS)
+                .join(ARTIST_PROFILES).on(ALBUMS.ARTIST_PROFILE_ID.eq(ARTIST_PROFILES.ID))
+                .where(where).fetchSingleInto(Long.class);
     }
 
 }
