@@ -1,5 +1,7 @@
 package br.com.tcloss.seletivoseplagapi.infra.api.v1;
 
+import java.util.UUID;
+
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateArtistProfileCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateArtistProfileCommand;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.OrderInputDto;
@@ -8,7 +10,9 @@ import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.Arti
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.ArtistProfileSearchDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.output.ArtistProfileResponse;
 import br.com.tcloss.seletivoseplagapi.application.dtos.output.MultipleItemsResult;
+import br.com.tcloss.seletivoseplagapi.application.queries.ArtistProfileQuery;
 import br.com.tcloss.seletivoseplagapi.application.queries.SearchArtistProfilesQuery;
+import br.com.tcloss.seletivoseplagapi.application.queryHandlers.ArtistProfileQueryHandler;
 import br.com.tcloss.seletivoseplagapi.application.queryHandlers.SearchArtistProfilesQueryHandler;
 import br.com.tcloss.seletivoseplagapi.infra.api.annotation.RateLimit;
 import io.quarkus.security.Authenticated;
@@ -17,6 +21,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -31,11 +36,23 @@ import lombok.AllArgsConstructor;
 public class ArtistProfileController {
     final private CreateArtistProfileCommandHandler createArtistProfileCommandHandler;
     final private SearchArtistProfilesQueryHandler searchArtistProfilesQueryHandler;
+    final private ArtistProfileQueryHandler artistProfileQueryHandler;
 
     @POST
     public Response create(ArtistProfileDto request) {
         createArtistProfileCommandHandler.execute(new CreateArtistProfileCommand(request));
         return Response.ok().build();
+    }
+
+    @GET
+    @Path("/{id}")
+    public Response get(@PathParam("id") UUID id) {
+        final var artist = artistProfileQueryHandler.query(new ArtistProfileQuery(id));
+        if (artist == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+        return Response.ok(artist).build();
     }
 
     @GET

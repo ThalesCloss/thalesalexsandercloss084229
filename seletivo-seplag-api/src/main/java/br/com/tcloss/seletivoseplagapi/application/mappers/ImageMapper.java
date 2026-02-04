@@ -7,10 +7,10 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
-
 import br.com.tcloss.seletivoseplagapi.application.dtos.output.ImageResponse;
 import br.com.tcloss.seletivoseplagapi.application.ports.FileManager;
 import br.com.tcloss.seletivoseplagapi.application.ports.AlbumQueryService.ImageDataProjection;
+import br.com.tcloss.seletivoseplagapi.domain.model.album.Image;
 import jakarta.inject.Inject;
 
 @Mapper(componentModel = "jakarta", unmappedTargetPolicy = ReportingPolicy.ERROR)
@@ -34,5 +34,18 @@ public abstract class ImageMapper {
         }
 
         return new ImageResponse(signedUrl, projection.type());
+    }
+
+    public ImageResponse toResponse(Image image) {
+        if (image == null || image.identifier().isEmpty()) {
+            return null;
+        }
+        var signedUrl = fileManager.generatePresignedUrl(image.identifier(), expiration);
+
+        if (signedUrl == null) {
+            return null;
+        }
+
+        return new ImageResponse(signedUrl, image.type().toString());
     }
 }
