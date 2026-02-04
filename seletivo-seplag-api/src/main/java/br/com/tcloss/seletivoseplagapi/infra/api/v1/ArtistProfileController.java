@@ -2,12 +2,15 @@ package br.com.tcloss.seletivoseplagapi.infra.api.v1;
 
 import java.util.UUID;
 
+import br.com.tcloss.seletivoseplagapi.application.commandHandlers.ChangeLineupCommandHandler;
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateArtistProfileCommandHandler;
+import br.com.tcloss.seletivoseplagapi.application.commands.ChangeLineupCommand;
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateArtistProfileCommand;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.OrderInputDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.PaginationInputDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.ArtistProfileDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.ArtistProfileSearchDto;
+import br.com.tcloss.seletivoseplagapi.application.dtos.input.artistprofile.LineupDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.output.ArtistProfileResponse;
 import br.com.tcloss.seletivoseplagapi.application.dtos.output.MultipleItemsResult;
 import br.com.tcloss.seletivoseplagapi.application.queries.ArtistProfileQuery;
@@ -37,6 +40,7 @@ public class ArtistProfileController {
     final private CreateArtistProfileCommandHandler createArtistProfileCommandHandler;
     final private SearchArtistProfilesQueryHandler searchArtistProfilesQueryHandler;
     final private ArtistProfileQueryHandler artistProfileQueryHandler;
+    final private ChangeLineupCommandHandler changeLineupCommandHandler;
 
     @POST
     public Response create(ArtistProfileDto request) {
@@ -53,6 +57,13 @@ public class ArtistProfileController {
                     .build();
         }
         return Response.ok(artist).build();
+    }
+
+    @POST
+    @Path("/{id}/lineups")
+    public Response changeLineup(@PathParam("id") UUID id, LineupDto lineupDto) {
+        changeLineupCommandHandler.execute(new ChangeLineupCommand(id, lineupDto));
+        return Response.accepted().build();
     }
 
     @GET
