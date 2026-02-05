@@ -45,7 +45,7 @@ public class MinioFileManager implements FileManager {
 
     @PostConstruct
     void init() {
-        if (externalUrl.isEmpty() || internalUrl.isEmpty()) {
+        if (externalUrl.isBlank()) {
             minioPresigned = minioClient;
             return;
         }
