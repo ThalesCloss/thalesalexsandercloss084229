@@ -1,6 +1,5 @@
 package br.com.tcloss.seletivoseplagapi.infra.api.v1;
 
-
 import java.util.UUID;
 
 import br.com.tcloss.seletivoseplagapi.application.commandHandlers.CreateCompositionCommandHandler;
@@ -14,8 +13,10 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 
 @Path("/v1/compositions")
@@ -27,10 +28,13 @@ import lombok.AllArgsConstructor;
 public class CompositionController {
     private final CreateCompositionCommandHandler createCompositionCommandHandler;
     private final CompositionRepository compositionRepository;
+
     @POST
-    public Response create(CreateCompositionCommand commandRequest) {
-        createCompositionCommandHandler.execute(commandRequest);
-        return Response.status(Response.Status.CREATED).build();
+    public Response create(CreateCompositionCommand commandRequest, @Context UriInfo uriInfo) {
+        final var composition = createCompositionCommandHandler.execute(commandRequest);
+        return Response.created(uriInfo.getAbsolutePathBuilder().path(composition.getId().toString()).build())
+                .entity(composition)
+                .build();
     }
 
     @GET

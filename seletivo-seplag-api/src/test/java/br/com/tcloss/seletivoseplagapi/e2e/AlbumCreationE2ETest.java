@@ -29,9 +29,10 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.smallrye.jwt.build.Jwt;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest
@@ -86,7 +87,7 @@ public class AlbumCreationE2ETest {
 
         given()
         .contentType(MediaType.APPLICATION_JSON).body(albumRequest).when()
-                .post("/v1/albums").then().statusCode(200);
+                .post("/v1/albums").then().statusCode(Response.Status.CREATED.getStatusCode());
 
         await()
                 .atMost(5, TimeUnit.SECONDS)

@@ -30,8 +30,10 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 
 @Path("/v1/artist-profile")
@@ -48,9 +50,10 @@ public class ArtistProfileController {
     final private UpdateArtistProfileCommandHandler updateArtistProfileCommandHandler;
 
     @POST
-    public Response create(ArtistProfileDto request) {
-        createArtistProfileCommandHandler.execute(new CreateArtistProfileCommand(request));
-        return Response.ok().build();
+    public Response create(ArtistProfileDto request, @Context UriInfo uriInfo) {
+        final var artist = createArtistProfileCommandHandler.execute(new CreateArtistProfileCommand(request));
+        return Response.created(uriInfo.getAbsolutePathBuilder().path(artist.getId().toString()).build()).entity(artist)
+                .build();
     }
 
     @GET

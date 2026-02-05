@@ -18,8 +18,10 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 
 @Path("/v1/persons")
@@ -33,9 +35,11 @@ public class PersonController {
     private final SearchPersonsQueryHandler searchPersonsQueryHandler;
 
     @POST
-    public Response create(@Valid CreatePersonCommand commandRequest) {
-        createPersonCommandHandler.execute(commandRequest);
-        return Response.status(Response.Status.CREATED).build();
+    public Response create(@Valid CreatePersonCommand commandRequest, @Context UriInfo uriInfo) {
+        final var person = createPersonCommandHandler.execute(commandRequest);
+        return Response.created(uriInfo.getAbsolutePathBuilder().path(person.getId().toString()).build())
+                .entity(person)
+                .build();
     }
 
     @GET

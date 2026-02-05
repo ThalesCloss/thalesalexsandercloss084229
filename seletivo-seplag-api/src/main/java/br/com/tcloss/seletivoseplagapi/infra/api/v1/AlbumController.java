@@ -27,8 +27,10 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 
 @Path("/v1/albums")
@@ -44,9 +46,10 @@ public class AlbumController {
     final private AlbumQueryHandler albumQueryHandler;
 
     @POST
-    public Response criar(@Valid AlbumDto album) {
-        createAlbumCommandHandler.execute(new CreateAlbumCommand(album));
-        return Response.ok().build();
+    public Response criar(@Valid AlbumDto albumDto, @Context UriInfo uriInfo) {
+        final var album = createAlbumCommandHandler.execute(new CreateAlbumCommand(albumDto));
+        return Response.created(uriInfo.getAbsolutePathBuilder().path(album.getId().toString()).build()).entity(album)
+                .build();
 
     }
 
@@ -64,7 +67,7 @@ public class AlbumController {
         return searchAlbumsQueryHandler.query(new SearchAlbumsQuery(albumSearchDto, pagination, orderInputDto));
     }
 
-     @GET
+    @GET
     @Path("/{id}")
     public Response get(@PathParam("id") UUID id) {
         final var album = albumQueryHandler.query(new AlbumQuery(id));
@@ -74,6 +77,5 @@ public class AlbumController {
         }
         return Response.ok(album).build();
     }
-
 
 }
