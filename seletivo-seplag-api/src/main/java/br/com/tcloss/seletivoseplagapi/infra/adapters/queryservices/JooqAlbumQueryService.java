@@ -40,7 +40,8 @@ public class JooqAlbumQueryService extends JooqQueryServiceBase implements Album
         final int pages = pagination.calculateTotalPages(countTotal);
         final int currentPage = pagination.getCurrentPageSafely(pages);
         final int offset = (currentPage - 1) * pagination.limit();
-        final var result = search(where, pagination.limit(), offset, orderInputDto);
+        final var result = countTotal > 0 ? search(where, pagination.limit(), offset, orderInputDto)
+                : List.<AlbumSummaryDataProjection>of();
         return new MultipleItemsResult<>(
                 result, new Pagination(pages, currentPage, pagination.limit(), countTotal));
     }
@@ -116,11 +117,10 @@ public class JooqAlbumQueryService extends JooqQueryServiceBase implements Album
                 var artistGuest = DSL.selectOne()
                         .from(ALBUM_TRACK_GUESTS)
                         .join(ALBUM_TRACKS).on(ALBUM_TRACKS.ID.eq(ALBUM_TRACK_GUESTS.TRACK_ID))
-                        .join(ALBUMS).on(ALBUMS.ID.eq(ALBUM_TRACKS.ALBUM_ID))
                         .join(PERSONS).on(PERSONS.ID.eq(ALBUM_TRACK_GUESTS.PERSON_ID))
-                        .where(
-                                DSL.or(ALBUM_TRACK_GUESTS.CREDIT_NAME.containsIgnoreCase(filter.artistName()),
-                                        PERSONS.NAME.containsIgnoreCase(filter.artistName())));
+                        .where(ALBUMS.ID.eq(ALBUM_TRACKS.ALBUM_ID))
+                        .and(DSL.or(ALBUM_TRACK_GUESTS.CREDIT_NAME.containsIgnoreCase(filter.artistName()),
+                                PERSONS.NAME.containsIgnoreCase(filter.artistName())));
 
                 artistWhere = artistWhere.or(DSL.exists(artistGuest));
             }
