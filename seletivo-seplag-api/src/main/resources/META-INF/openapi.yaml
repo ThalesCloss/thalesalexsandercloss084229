@@ -1,0 +1,10 @@
+openapi: 3.1.0
+components:
+  securitySchemes:
+    SecurityScheme:
+      type: oauth2
+      description: Keycloak OIDC (PKCE Enabled)
+      flows:
+        authorizationCode:
+          authorizationUrl: http://localhost:9497/realms/seletivo-seplag-realm/protocol/openid-connect/auth
+          tokenUrl: http://localhost:9497/realms/seletivo-seplag-realm/protocol/openid-connect/token
