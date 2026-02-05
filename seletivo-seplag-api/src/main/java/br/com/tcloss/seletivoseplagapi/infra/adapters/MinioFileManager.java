@@ -1,6 +1,5 @@
 package br.com.tcloss.seletivoseplagapi.infra.adapters;
 
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -16,6 +15,7 @@ import io.minio.RemoveObjectArgs;
 import io.minio.UploadObjectArgs;
 import io.minio.http.Method;
 import io.quarkus.logging.Log;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -23,11 +23,34 @@ public class MinioFileManager implements FileManager {
 
     private final MinioClient minioClient;
     private final String bucket;
+    private final String externalUrl;
+    private final String internalUrl;
+    private MinioClient minioPresigned;
+    private final String accessKey;
+    private final String secretKey;
 
     public MinioFileManager(MinioClient minioClient,
-            @ConfigProperty(name = "application.uploads.bucket") String bucket) {
+            @ConfigProperty(name = "application.uploads.bucket") String bucket,
+            @ConfigProperty(name = "quarkus.minio.access-key") String accessKey,
+            @ConfigProperty(name = "quarkus.minio.secret-key") String secretKey,
+            @ConfigProperty(name = "application.uploads.external.url", defaultValue = " ") String externalUrl,
+            @ConfigProperty(name = "application.uploads.internal.url", defaultValue = " ") String internalUrl) {
         this.minioClient = minioClient;
         this.bucket = bucket;
+        this.externalUrl = externalUrl;
+        this.internalUrl = internalUrl;
+        this.accessKey = accessKey;
+        this.secretKey = secretKey;
+    }
+
+    @PostConstruct
+    void init() {
+        if (externalUrl.isEmpty() || internalUrl.isEmpty()) {
+            minioPresigned = minioClient;
+            return;
+        }
+        minioPresigned = MinioClient.builder().region("us-east-1").endpoint(externalUrl).credentials(accessKey, secretKey).build();
+        
     }
 
     @Override
@@ -63,7 +86,7 @@ public class MinioFileManager implements FileManager {
     @Override
     public URI generatePresignedUrl(String fileName, Duration timer) {
         try {
-            final var url = minioClient.getPresignedObjectUrl(
+            final var url = minioPresigned.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(bucket)
