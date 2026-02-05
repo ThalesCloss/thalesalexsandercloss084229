@@ -15,7 +15,7 @@ public class CreateArtistProfileCommandHandler {
     final private ArtistProfileRepository artistProfileRepository;
 
     @Transactional
-    public void execute(CreateArtistProfileCommand request) {
+    public ArtistProfile execute(CreateArtistProfileCommand request) {
         final var artist = ArtistProfile.createNew(
                 request.artistProfile().stageName(),
                 request.artistProfile().biography(),
@@ -27,5 +27,6 @@ public class CreateArtistProfileCommandHandler {
                                 lineup.startDate(), lineup.endDate()))
                         .toList());
         artistProfileRepository.save(artist);
+        return artist;
     }
 }

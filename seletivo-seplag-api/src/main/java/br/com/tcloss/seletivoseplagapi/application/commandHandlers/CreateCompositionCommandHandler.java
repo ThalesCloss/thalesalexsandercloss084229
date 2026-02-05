@@ -13,7 +13,7 @@ public class CreateCompositionCommandHandler {
     private final CompositionRepository compositionRepository;
 
     @Transactional
-    public void execute(CreateCompositionCommand request) {
+    public Composition execute(CreateCompositionCommand request) {
         final var composition = Composition.createNew(
                 request.title(),
                 request.iswc(),
@@ -22,5 +22,6 @@ public class CreateCompositionCommandHandler {
                 request.releaseDate()
         );
         compositionRepository.save(composition);
+        return composition;
     }
 }

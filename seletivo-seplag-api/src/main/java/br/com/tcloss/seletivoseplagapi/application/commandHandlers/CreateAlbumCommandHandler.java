@@ -1,7 +1,6 @@
 package br.com.tcloss.seletivoseplagapi.application.commandHandlers;
 
 import java.util.List;
-
 import br.com.tcloss.seletivoseplagapi.application.commands.CreateAlbumCommand;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.GuestDto;
 import br.com.tcloss.seletivoseplagapi.application.dtos.input.album.TrackDto;
@@ -22,7 +21,7 @@ public class CreateAlbumCommandHandler {
         private final Event<AlbumCreatedIntegrationEvent> integrationEventPublisher;
 
         @Transactional
-        public void execute(CreateAlbumCommand command) {
+        public Album execute(CreateAlbumCommand command) {
 
                 final var album = Album.createNew(
                                 command.album().title(),
@@ -35,6 +34,7 @@ public class CreateAlbumCommandHandler {
 
                 integrationEventPublisher
                                 .fire(AlbumCreatedIntegrationEvent.create(album.getId(), album.getTitle().toString()));
+                return album;
         }
 
         private List<Track> mapTracks(List<TrackDto> tracks) {
