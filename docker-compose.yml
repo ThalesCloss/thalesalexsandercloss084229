@@ -1,6 +1,62 @@
 version: '3.8'
 
 services:
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8889:80"
+    volumes:
+      - ./.docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+    networks:
+        - seletivo-seplag-network
+  api:
+    image: docker.io/thcloss/seplag-api:latest
+    restart: always
+    deploy:
+      replicas: 2
+    environment:
+      QUARKUS_OIDC_AUTH_SERVER_URL: http://keycloak:8080/realms/seletivo-seplag-realm
+      QUARKUS_OIDC_TOKEN_ISSUER: http://localhost:9497/realms/seletivo-seplag-realm
+      QUARKUS_SMALLRYE_OPENAPI_OIDC_OPENID_CONNECT_URL: http://localhost:9497/realms/seletivo-seplag-realm/.well-known/openid-configuration
+      QUARKUS_HTTP_PORT: 8080
+      QUARKUS_REDIS_HOSTS: redis://redis:6379
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://database:5432/seletivoseplag
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger:4317
+      QUARKUS_SWAGGER__UI_ALWAYS__INCLUDE: "true"
+      QUARKUS_MINIO_HOST: minio
+      APPLICATION_UPLOADS_INTERNAL_URL: http://minio:9000
+      APPLICATION_UPLOADS_EXTERNAL_URL: http://localhost:9000
+      APPLICATION_UPLOADS_BUCKET: uploads
+      QUARKUS_HTTP_CORS_ENABLED: "true"
+      QUARKUS_HTTP_CORS_ORIGINS: http://localhost:8087,http://localhost:8081,http://localhost:8889,http://localhost:9497
+      QUARKUS_HTTP_CORS_HEADERS: accept, authorization, content-type, x-requested-with
+      QUARKUS_HTTP_CORS_METHODS: GET, PUT, POST, DELETE, OPTIONS, HEAD
+      APPLICATION_RATE__LIMIT_LIMIT: 10
+      APPLICATION_RATE__LIMIT_WINDOW: PT60S
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy 
+      minio:
+        condition: service_started
+      jaeger:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+        - seletivo-seplag-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   database:
     image: postgres:15-alpine
     container_name: pgsql-seletivo-seplag
@@ -13,16 +69,19 @@ services:
       - "5432:5432"
     volumes:
       - ./.docker/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
-      - ./.docker/postgres-data:/var/lib/postgresql/data
+      - ./.docker/postgres-data-prd:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d seletivoseplag"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+        - seletivo-seplag-network
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.4
     container_name: seplag_keycloak
-    command: start-dev --import-realm
+    command: start-dev --import-realm --health-enabled=true --metrics-enabled=true --http-management-port=9000
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://database:5432/keycloak
@@ -38,37 +97,58 @@ services:
       KC_TELEMETRY_SERVICE_NAME: "keycloak-auth-server"
       OTEL_SERVICE_NAME: "keycloak-auth-server"
       OTEL_TRACES_SAMPLER: "always_on"
-      KC_TRACES_SAMPLER: "always_on"
+      KC_TRACES_SAMPLKC_HOSTNAMEER: "always_on"
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: http://localhost:9497
+      KC_HOSTNAME_URL: http://localhost:9497
+      KC_HOSTNAME_ADMIN_URL: http://localhost:9497
+      KC_HOSTNAME_STRICT: "true"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"      
+      KC_PROXY: "xforwarded"
     ports:
-      - "9090:8080"
+      - "9497:8080"
     volumes:
-      - ./.docker/keycloak:/opt/keycloak/data/import      
+      - ./.docker/keycloak:/opt/keycloak/data/import           
     depends_on:
       jaeger:
         condition: service_started
       database:
-        condition: service_healthy      
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+        - seletivo-seplag-network      
 
   jaeger:
     image: jaegertracing/all-in-one:latest
     container_name: jaeger
     ports:
-      # Porta da Interface Visual (UI) - Acesse em http://localhost:16686
       - "16686:16686"
-      # Porta para receber dados via OTLP gRPC (Padrão do Quarkus)
       - "4317:4317"
-      # Porta para receber dados via OTLP HTTP (Opcional, mas bom ter)
       - "4318:4318"
-      # Porta para métricas do próprio Jaeger (Opcional)
       - "14269:14269"
     environment:
       - COLLECTOR_OTLP_ENABLED=true
+    networks:
+        - seletivo-seplag-network
 
   redis:
       image: redis:alpine
       container_name: redis
       ports:
         - "6379:6379"
+      networks:
+        - seletivo-seplag-network
+      healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+        start_period: 5s                
 
   minio:
       image: minio/minio:RELEASE.2025-09-07T16-13-09Z
@@ -81,16 +161,32 @@ services:
         - "9000:9000"
         - "9001:9001"
       volumes:
-        - ./.docker/minio_data:/data
+        - ./.docker/minio_data_prd:/data
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+      networks:
+        - seletivo-seplag-network        
 
   minio-create-bucket:
     image: minio/mc
+    volumes:
+      - ./.docker/019c2ef9-311e-7ad5-8611-8d0693360e99.png:/tmp/019c2ef9-311e-7ad5-8611-8d0693360e99.png
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc alias set myminio http://minio:9000 admin password;
-      /usr/bin/mc mb myminio/uploads;
-      /usr/bin/mc anonymous set public myminio/uploads;
+      /usr/bin/mc mb --ignore-existing myminio/uploads;
+      /usr/bin/mc cp /tmp/019c2ef9-311e-7ad5-8611-8d0693360e99.png myminio/uploads/albums/019c2ef9-311e-7ad5-8611-8d0693360e99.png;
       exit 0;
-      "        
+      "
+    networks:
+      - seletivo-seplag-network        
+
+networks:
+  seletivo-seplag-network:
+    driver: bridge      

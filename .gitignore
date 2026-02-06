@@ -26,3 +26,7 @@ replay_pid*
 /.quarkus/cli/plugins/
 #Docker data
 .docker/postgres-data/
+.docker/postgres-data-prd/
+.docker/seq-logs
+.docker/minio_data
+.docker/minio_data_prd

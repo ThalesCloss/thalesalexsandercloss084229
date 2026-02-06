@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:15-alpine
+    container_name: pgsql-seletivo-seplag
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: seletivoseplag
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.docker/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+      - ./.docker/postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d seletivoseplag"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    container_name: seplag_keycloak
+    command: start-dev --import-realm --health-enabled=true
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://database:5432/keycloak
+      KC_DB_USERNAME: user
+      KC_DB_PASSWORD: password
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_FEATURES: opentelemetry
+      KC_TRACING_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_TELEMETRY_ENDPOINT: http://jaeger:4317
+      KC_TRACING_ENDPOINT: http://jaeger:4317
+      KC_TELEMETRY_SERVICE_NAME: "keycloak-auth-server"
+      OTEL_SERVICE_NAME: "keycloak-auth-server"
+      OTEL_TRACES_SAMPLER: "always_on"
+      KC_TRACES_SAMPLER: "always_on"
+    ports:
+      - "9497:8080"
+    volumes:
+      - ./.docker/keycloak:/opt/keycloak/data/import      
+    depends_on:
+      jaeger:
+        condition: service_started
+      database:
+        condition: service_healthy      
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      # Porta da Interface Visual (UI) - Acesse em http://localhost:16686
+      - "16686:16686"
+      # Porta para receber dados via OTLP gRPC (Padrão do Quarkus)
+      - "4317:4317"
+      # Porta para receber dados via OTLP HTTP (Opcional, mas bom ter)
+      - "4318:4318"
+      # Porta para métricas do próprio Jaeger (Opcional)
+      - "14269:14269"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  redis:
+      image: redis:alpine
+      container_name: redis
+      ports:
+        - "6379:6379"
+
+  minio:
+      image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+      container_name: minio
+      command: server /data --console-address ":9001"
+      environment:
+        MINIO_ROOT_USER: admin
+        MINIO_ROOT_PASSWORD: password
+      ports:
+        - "9000:9000"
+        - "9001:9001"
+      volumes:
+        - ./.docker/minio_data:/data
+
+  minio-create-bucket:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 admin password;
+      /usr/bin/mc mb myminio/uploads;
+      /usr/bin/mc anonymous set public myminio/uploads;
+      exit 0;
+      "        

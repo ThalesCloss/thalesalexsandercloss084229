@@ -803,13 +803,16 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://localhost:9090/*",
-        "http://localhost:8087/*"
+        "http://localhost:9497/*",
+        "http://localhost:8087/*",
+        "http://localhost:8889/*"
       ],
       "webOrigins": [
-        "http://localhost:9090/*",
+        "http://localhost:9497/*",
         "http://localhost:8087",
-        "http://localhost:8087/*"
+        "http://localhost:8087/*",
+        "http://localhost:8889",
+        "http://localhost:8889/*"
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -824,7 +827,7 @@
       "attributes": {
         "request.object.signature.alg": "any",
         "frontchannel.logout.session.required": "true",
-        "post.logout.redirect.uris": "http://localhost:8087/*##http://localhost:9090/*",
+        "post.logout.redirect.uris": "http://localhost:8087/*##http://localhost:9497/*##http://localhost:8889/*",
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false",
         "use.refresh.tokens": "true",
