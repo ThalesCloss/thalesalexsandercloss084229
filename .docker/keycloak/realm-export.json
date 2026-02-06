@@ -2625,6 +2625,26 @@
         "default-roles-seletivo-seplag-realm",
         "api-regionais"
       ]
+    },
+    {
+      "username": "teste-sem-regional",
+      "enabled": true,
+      "id":"255bbe71-f3bd-4f89-9ba5-ad81c3bf47b3",
+      "createdTimestamp":"1769961967896",
+      "emailVerified": true,
+      "email": "teste-sem-regional@teste.com",
+      "firstName": "teste",
+      "lastName": "sem regional",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "teste",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-seletivo-seplag-realm"
+      ]
     }
   ]
 }
